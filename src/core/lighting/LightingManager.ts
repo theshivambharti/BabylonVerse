@@ -109,8 +109,8 @@ export class LightingManager {
         // Professional shadow defaults for smooth, high-quality filtering
         shadowGenerator.useBlurExponentialShadowMap = true;
         shadowGenerator.useKernelBlur = true;
-        shadowGenerator.blurKernel = 32;
-        shadowGenerator.setDarkness(0.15); 
+        shadowGenerator.blurKernel = 64;
+        shadowGenerator.setDarkness(0.2); 
 
         this._shadowGenerators.set(light.name, shadowGenerator);
         

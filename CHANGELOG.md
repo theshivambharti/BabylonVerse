@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.3.1] - 2026-07-12
+### Fixed & Polished
+- Adjusted object spacing in Lighting Showcase for better composition.
+- Increased camera focus radius to prevent clipping on focus.
+- Tuned ShadowGenerator blur kernel from 32 to 64 and tweaked darkness.
+- Boosted environment intensity to 1.2 for more vibrant PBR reflections.
+- Completed full production build verification pass.
+
 ## [v0.3.0] - 2026-07-12
 ### Added
 - Complete Lighting Studio showcase (`LightingShowcase.ts`)

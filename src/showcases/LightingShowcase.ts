@@ -49,6 +49,7 @@ export class LightingShowcase implements IShowcase {
         // Preload assets
         const hdrTexture = await AssetManager.instance.loadHDR(envStudio);
         this._scene.environmentTexture = hdrTexture;
+        this._scene.environmentIntensity = 1.2;
 
         this._setupCamera();
         this._createEnvironment();
@@ -136,7 +137,7 @@ export class LightingShowcase implements IShowcase {
             ease: "power3.inOut"
         });
         gsap.to(camera, {
-            radius: 8,
+            radius: 12,
             duration: 1.5,
             ease: "power3.inOut"
         });
@@ -159,10 +160,10 @@ export class LightingShowcase implements IShowcase {
 
         const positions = [
             new Vector3(0, 1.5, 0),    // Center TorusKnot
-            new Vector3(-4, 1, -4),    // Sphere
-            new Vector3(4, 1, -4),     // Box
-            new Vector3(-4, 1, 4),     // Cylinder
-            new Vector3(4, 1, 4)       // Torus
+            new Vector3(-6, 1, -6),    // Sphere
+            new Vector3(6, 1, -6),     // Box
+            new Vector3(-6, 1, 6),     // Cylinder
+            new Vector3(6, 1, 6)       // Torus
         ];
 
         const tk = MeshBuilder.CreateTorusKnot("tk", { radius: 1, tube: 0.3, radialSegments: 64, tubularSegments: 32 }, this._scene);
