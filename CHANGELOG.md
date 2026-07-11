@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.3.0] - 2026-07-12
+### Added
+- Complete Lighting Studio showcase (`LightingShowcase.ts`)
+- Interactive Gizmos to manipulate Hemispheric, Directional, Point, and Spot lights
+- Real-time inspector to control lighting intensity, color, and shadows
+- GSAP camera integration to dynamically focus on selected lights
+- Enhanced `LightingManager` with dynamic shadow and color toggling utilities
+
 ## [v0.2-material-showcase] - 2026-07-12
 ### Added
 - Professional 3x4 grid gallery layout in `MaterialsShowcase.ts`

@@ -137,4 +137,27 @@ export class LightingManager {
             light.specular = config.specular;
         }
     }
+
+    public setLightColor(light: Light, hex: string): void {
+        light.diffuse = Color3.FromHexString(hex);
+    }
+
+    public removeShadowGenerator(light: IShadowLight): void {
+        if (this._shadowGenerators.has(light.name)) {
+            const sg = this._shadowGenerators.get(light.name);
+            sg?.dispose();
+            this._shadowGenerators.delete(light.name);
+        }
+    }
+
+    public toggleShadows(light: IShadowLight, enabled: boolean, meshes?: import("@babylonjs/core/Meshes/abstractMesh").AbstractMesh[]): void {
+        if (enabled) {
+            const sg = this.addShadowGenerator(light);
+            if (meshes) {
+                meshes.forEach(m => sg.addShadowCaster(m));
+            }
+        } else {
+            this.removeShadowGenerator(light);
+        }
+    }
 }
