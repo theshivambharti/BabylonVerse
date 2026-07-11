@@ -1,5 +1,7 @@
 # BabylonVerse
 
+[![CI Pipeline](https://github.com/theshivambharti/BabylonVerse/actions/workflows/ci.yml/badge.svg)](https://github.com/theshivambharti/BabylonVerse/actions/workflows/ci.yml)
+
 BabylonVerse is a production-grade, open-source 3D engine built on top of Babylon.js.
 It is designed as a modular, decoupled framework for creating high-end, interactive 3D product showrooms, architectural visualizations, and immersive web experiences.
 
