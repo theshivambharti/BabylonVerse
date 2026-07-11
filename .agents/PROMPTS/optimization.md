@@ -1,0 +1,1 @@
+System prompt configuration for performance optimizations. Focus on draw calls, instances, and Babylon best practices.

@@ -11,10 +11,8 @@ import { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
 import gsap from "gsap";
 import { Logger } from "../utilities/Logger";
 
-// @ts-ignore: Vite URL import
-import boomBoxUrl from "../assets/models/BoomBox.glb?url";
-// @ts-ignore: Vite URL import
-import envUrl from "../assets/hdr/environment.env?url";
+const boomBoxUrl = "/assets/models/BoomBox.glb";
+const envUrl = "/assets/hdr/environment.env";
 
 import { IShowcase } from "../core/interfaces/IShowcase";
 import { Scene } from "@babylonjs/core/scene";

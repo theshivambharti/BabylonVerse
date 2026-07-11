@@ -8,6 +8,8 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    sourcemap: true
-  }
+    sourcemap: false,
+    chunkSizeWarningLimit: 2000
+  },
+  assetsInclude: ['**/*.glb', '**/*.env', '**/*.hdr', '**/*.gltf']
 });

@@ -1,6 +1,6 @@
+import { EnvironmentManager } from "../core/environment/EnvironmentManager";
 import { SceneManager } from "../core/scene/SceneManager";
 import { CameraManager } from "../core/camera/CameraManager";
-import { EnvironmentManager } from "../core/environment/EnvironmentManager";
 import { LightingManager } from "../core/lighting/LightingManager";
 import { MaterialManager } from "../core/materials/MaterialManager";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";

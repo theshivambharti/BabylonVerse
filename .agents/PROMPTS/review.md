@@ -1,0 +1,1 @@
+System prompt configuration for code review. Use REVIEW_CHECKLIST.md.

@@ -1,0 +1,1 @@
+System prompt configuration for developing a new feature. Focus on SOLID, strict TS, and memory management.

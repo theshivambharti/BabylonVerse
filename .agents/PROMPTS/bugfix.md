@@ -1,0 +1,1 @@
+System prompt configuration for fixing a bug. Focus on identifying root cause without rewriting unrelated managers.

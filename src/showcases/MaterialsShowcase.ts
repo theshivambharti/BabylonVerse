@@ -15,12 +15,10 @@ import { Observer } from "@babylonjs/core/Misc/observable";
 import { AdvancedDynamicTexture, TextBlock, Rectangle } from "@babylonjs/gui";
 import gsap from "gsap";
 
-// @ts-ignore
-import envStudio from "../assets/hdr/environment.env?url";
-// @ts-ignore
-import envNight from "../assets/hdr/night.env?url";
-// @ts-ignore
-import envOutdoor from "../assets/hdr/outdoor.env?url";
+const envStudio = "/assets/hdr/environment.env";
+const envNight = "/assets/hdr/night.env";
+const envOutdoor = "/assets/hdr/outdoor.env";
+
 import { IShowcase } from "../core/interfaces/IShowcase";
 import { Scene } from "@babylonjs/core/scene";
 

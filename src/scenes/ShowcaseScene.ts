@@ -11,7 +11,7 @@ import { Logger } from "../utilities/Logger";
 
 // Required to bundle static assets using Vite
 // @ts-ignore: Vite URL import
-import boomBoxUrl from "../assets/models/BoomBox.glb?url";
+    const boomBoxUrl = "/assets/models/BoomBox.glb";
 
 export class ShowcaseScene {
     /**

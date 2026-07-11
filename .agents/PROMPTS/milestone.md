@@ -1,0 +1,1 @@
+System prompt configuration for achieving a major milestone. Focus on architecture, integration, and final tagging.
