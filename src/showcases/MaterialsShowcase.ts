@@ -32,8 +32,6 @@ export class MaterialsShowcase implements IShowcase {
     
     private _materialsMap: Map<string, PBRMaterial> = new Map();
     private _materialMeshes: AbstractMesh[] = [];
-    private _baseRadius = 6.5; // Ensure ample spacing between 10 materials
-    
     private _floor: AbstractMesh | null = null;
     private _guiTexture: AdvancedDynamicTexture | null = null;
 
@@ -174,6 +172,11 @@ export class MaterialsShowcase implements IShowcase {
         const env = EnvironmentManager.instance;
         // The background is set to true to load skybox. We MUST have a skybox to prevent black background
         await env.setupHDR(envUrl, true);
+        
+        const scene = SceneManager.instance.scene;
+        scene.imageProcessingConfiguration.exposure = 1.2;
+        scene.imageProcessingConfiguration.contrast = 1.1;
+        scene.imageProcessingConfiguration.toneMappingEnabled = true;
     }
 
     private _createFloor(): void {
@@ -217,31 +220,42 @@ export class MaterialsShowcase implements IShowcase {
         const scene = SceneManager.instance.scene;
         const mm = MaterialManager.instance;
         
-        this._materialsMap.set("Gold", mm.createGold("Gold"));
-        this._materialsMap.set("Chrome", mm.createChrome("Chrome"));
-        this._materialsMap.set("Copper", mm.createCopper("Copper"));
-        this._materialsMap.set("Plastic", mm.createPlastic("Plastic", new Color3(0.8, 0.2, 0.2)));
+        // Row 1
         this._materialsMap.set("Glass", mm.createGlass("Glass"));
+        this._materialsMap.set("Chrome", mm.createChrome("Chrome"));
+        this._materialsMap.set("Gold", mm.createGold("Gold"));
+        this._materialsMap.set("Copper", mm.createCopper("Copper"));
+        
+        // Row 2
+        this._materialsMap.set("Plastic", mm.createPlastic("Plastic", new Color3(0.8, 0.2, 0.2)));
         this._materialsMap.set("Rubber", mm.createRubber("Rubber"));
         this._materialsMap.set("Wood", mm.createWood("Wood"));
         this._materialsMap.set("Marble", mm.createMarble("Marble"));
+        
+        // Row 3
         this._materialsMap.set("Fabric", mm.createFabric("Fabric"));
         this._materialsMap.set("Carbon Fiber", mm.createCarbonFiber("Carbon Fiber"));
+        this._materialsMap.set("Concrete", mm.createConcrete("Concrete"));
+        this._materialsMap.set("Paint", mm.createPaint("Paint"));
 
         const entries = Array.from(this._materialsMap.entries());
-        const count = entries.length;
         
-        for (let i = 0; i < count; i++) {
+        const cols = 4;
+        const spacingX = 3.5;
+        const spacingZ = 4.0;
+        
+        for (let i = 0; i < entries.length; i++) {
             const [name, material] = entries[i];
-            const angle = (i / count) * Math.PI * 2;
-            const x = Math.sin(angle) * this._baseRadius;
-            const z = Math.cos(angle) * this._baseRadius;
             
-            // Alternating heights for organic feel
-            const height = i % 2 === 0 ? 1.0 : 1.2;
-            const pedestalY = height / 2; // Center of cylinder
+            const row = Math.floor(i / cols);
+            const col = i % cols;
             
-            // Elegant Pedestal Base (rounded feel via high tessellation)
+            const x = (col - (cols - 1) / 2) * spacingX;
+            const z = -(row - 1) * spacingZ;
+            
+            const height = 1.0;
+            const pedestalY = height / 2;
+            
             const ped = MeshBuilder.CreateCylinder(`ped_${name}`, { height: height, diameter: 1.2, tessellation: 64 }, scene);
             ped.position = new Vector3(x, pedestalY, z);
             const pedMat = mm.createConcrete(`pedMat_${name}`);
@@ -249,27 +263,23 @@ export class MaterialsShowcase implements IShowcase {
             pedMat.roughness = 0.5;
             ped.material = pedMat;
             
-            // Subtle Bevel (Torus at top of pedestal)
             const bevel = MeshBuilder.CreateTorus(`bevel_${name}`, { diameter: 1.2, thickness: 0.05, tessellation: 64 }, scene);
             bevel.position = new Vector3(x, height, z);
             bevel.material = pedMat;
 
-            // Small Emissive Ring at base
             const ring = MeshBuilder.CreateTorus(`ring_${name}`, { diameter: 1.3, thickness: 0.03, tessellation: 64 }, scene);
             ring.position = new Vector3(x, 0.02, z);
             const ringMat = mm.createEmissiveNeon(`ringMat_${name}`, new Color3(0.0, 0.8, 1.0));
             ringMat.emissiveIntensity = 0.5;
             ring.material = ringMat;
             
-            // Material Sphere
             const sphereY = height + 0.75;
             const sphere = MeshBuilder.CreateSphere(`mat_${name}`, { diameter: 1.5, segments: 64 }, scene);
-            sphere.position = new Vector3(x, sphereY, z); // Floating above pedestal
+            sphere.position = new Vector3(x, sphereY, z);
             sphere.material = material;
             sphere.metadata = { originalScale: sphere.scaling.clone(), name: name, originalY: sphereY };
             this._materialMeshes.push(sphere);
             
-            // 3D Label via GUI placed BELOW pedestal base
             this._create3DLabel(name, ped);
 
             if (shadowGen) {
@@ -368,14 +378,25 @@ export class MaterialsShowcase implements IShowcase {
         gsap.to(this._selectedMesh.scaling, { x: 1.25, y: 1.25, z: 1.25, duration: 0.5, ease: "elastic.out(1, 0.4)" });
         gsap.to(this._selectedMesh.position, { y: this._selectedMesh.metadata.originalY + 0.5, duration: 0.5, ease: "elastic.out(1, 0.4)" });
 
+        // Fade out other materials
+        this._materialMeshes.forEach(m => {
+            if (m !== this._selectedMesh) {
+                if (m.material) {
+                    m.material.alpha = 0.2;
+                }
+            } else {
+                if (m.material) {
+                    m.material.alpha = 1.0;
+                }
+            }
+        });
+
         if (camera) {
-            const targetPos = mesh.position.clone();
-            const dir = targetPos.normalizeToNew();
             const newRadius = 5; 
             
             gsap.to(camera, {
                 radius: newRadius,
-                alpha: Math.atan2(dir.z, dir.x),
+                alpha: Math.PI / 2, // Face directly
                 beta: Math.PI / 2.3, // Slightly higher angle
                 duration: 1.5,
                 ease: "power2.inOut"
@@ -400,13 +421,21 @@ export class MaterialsShowcase implements IShowcase {
             this._selectedMesh = null;
         }
 
+        // Restore alphas
+        this._materialMeshes.forEach(m => {
+            if (m.material) {
+                // If it is glass, restore it to 0.3, otherwise 1.0
+                m.material.alpha = m.metadata.name === "Glass" ? 0.3 : 1.0;
+            }
+        });
+
         this._hideUI();
 
         const camera = CameraManager.instance.activeCamera;
         if (camera) {
             gsap.to(camera, {
                 radius: 20,
-                alpha: Math.PI / 4,
+                alpha: Math.PI / 2, // Straight on for grid
                 beta: Math.PI / 3,
                 duration: 1.5,
                 ease: "power2.inOut"
@@ -428,31 +457,21 @@ export class MaterialsShowcase implements IShowcase {
         if (camera) {
             gsap.fromTo(camera, 
                 { radius: 35, alpha: 0 },
-                { radius: 20, alpha: Math.PI / 4, duration: 3.5, ease: "power2.out" }
+                { radius: 20, alpha: Math.PI / 2, duration: 3.5, ease: "power2.out" }
             );
         }
 
         let angle = 0;
         this._renderObserver = scene.onBeforeRenderObservable.add(() => {
-            const dt = scene.getEngine().getDeltaTime() * 0.00008; // slow rotation
+            const dt = scene.getEngine().getDeltaTime() * 0.001; 
             angle += dt;
             const count = this._materialMeshes.length;
             
-            // Only orbit the entire gallery if nothing is selected
-            if (!this._selectedMesh) {
-                for (let i = 0; i < count; i++) {
-                    const mesh = this._materialMeshes[i];
-                    const offsetAngle = (i / count) * Math.PI * 2;
-                    const totalAngle = offsetAngle + angle;
-                    mesh.position.x = Math.sin(totalAngle) * this._baseRadius;
-                    mesh.position.z = Math.cos(totalAngle) * this._baseRadius;
-                    
-                    const ped = scene.getMeshByName("ped_" + mesh.metadata.name);
-                    if (ped) {
-                        ped.position.x = mesh.position.x;
-                        ped.position.z = mesh.position.z;
-                    }
-                }
+            // Gently rotate spheres individually
+            for (let i = 0; i < count; i++) {
+                const mesh = this._materialMeshes[i];
+                mesh.rotation.y = angle * 0.5;
+                mesh.rotation.x = Math.sin(angle * 0.2 + i) * 0.2;
             }
         });
     }
@@ -580,13 +599,9 @@ export class MaterialsShowcase implements IShowcase {
                 <h2 class="mat-title" id="mat-title">Material Name</h2>
                 <p class="mat-desc" id="mat-desc">Description goes here.</p>
             </div>
-            <div class="mat-stat">
-                <span>Alpha</span>
-                <span class="value" id="mat-alpha">1.0</span>
-            </div>
-            <div class="mat-stat">
-                <span>Reflectivity</span>
-                <span class="value" id="mat-refl">0.0</span>
+            <div class="mat-control">
+                <label><span>Alpha</span><span id="lbl-alpha">1.0</span></label>
+                <input type="range" id="slider-alpha" min="0" max="1" step="0.01">
             </div>
             <div class="mat-control">
                 <label><span>Metallic</span><span id="lbl-metal">0.0</span></label>
@@ -595,6 +610,30 @@ export class MaterialsShowcase implements IShowcase {
             <div class="mat-control">
                 <label><span>Roughness</span><span id="lbl-rough">0.0</span></label>
                 <input type="range" id="slider-rough" min="0" max="1" step="0.01">
+            </div>
+            <div class="mat-control">
+                <label><span>Clear Coat</span><span id="lbl-cc">0.0</span></label>
+                <input type="range" id="slider-cc" min="0" max="1" step="0.01">
+            </div>
+            <div class="mat-control">
+                <label><span>Anisotropy</span><span id="lbl-aniso">0.0</span></label>
+                <input type="range" id="slider-aniso" min="0" max="1" step="0.01">
+            </div>
+            <div class="mat-control">
+                <label><span>Reflectivity</span><span id="lbl-refl">0.0</span></label>
+                <input type="range" id="slider-refl" min="0" max="1" step="0.01">
+            </div>
+            <div class="mat-control">
+                <label><span>Ambient</span><span id="lbl-ambient">0.0</span></label>
+                <input type="range" id="slider-ambient" min="0" max="1" step="0.01">
+            </div>
+            <div class="mat-control">
+                <label><span>Emissive</span><span id="lbl-emissive">#000000</span></label>
+                <input type="color" id="color-emissive" value="#000000">
+            </div>
+            <div class="mat-control">
+                <label><span>Tint (Albedo)</span><span id="lbl-tint">#ffffff</span></label>
+                <input type="color" id="color-tint" value="#ffffff">
             </div>
         `;
 
@@ -608,41 +647,67 @@ export class MaterialsShowcase implements IShowcase {
 
         const title = document.getElementById("mat-title");
         const desc = document.getElementById("mat-desc");
-        const alpha = document.getElementById("mat-alpha");
-        const refl = document.getElementById("mat-refl");
-        
-        const sliderMetal = document.getElementById("slider-metal") as HTMLInputElement;
-        const sliderRough = document.getElementById("slider-rough") as HTMLInputElement;
-        const lblMetal = document.getElementById("lbl-metal");
-        const lblRough = document.getElementById("lbl-rough");
 
         if (title) title.textContent = name;
         if (desc) desc.textContent = `Premium ${name.toLowerCase()} physically based material.`;
-        if (alpha) alpha.textContent = material.alpha.toFixed(2);
+
+        const bindSlider = (id: string, lblId: string, val: number, setter: (v: number) => void) => {
+            const slider = document.getElementById(id) as HTMLInputElement;
+            const lbl = document.getElementById(lblId);
+            if (slider && lbl) {
+                slider.value = val.toString();
+                lbl.textContent = val.toFixed(2);
+                slider.oninput = (e: any) => {
+                    const v = parseFloat(e.target.value);
+                    setter(v);
+                    lbl.textContent = v.toFixed(2);
+                };
+            }
+        };
+
+        const bindColor = (id: string, lblId: string, color: Color3, setter: (c: Color3) => void) => {
+            const picker = document.getElementById(id) as HTMLInputElement;
+            const lbl = document.getElementById(lblId);
+            if (picker && lbl) {
+                picker.value = color.toHexString().substring(0, 7);
+                lbl.textContent = picker.value.toUpperCase();
+                picker.oninput = (e: any) => {
+                    const c = Color3.FromHexString(e.target.value);
+                    setter(c);
+                    lbl.textContent = e.target.value.toUpperCase();
+                };
+            }
+        };
+
+        bindSlider("slider-alpha", "lbl-alpha", material.alpha, (v) => material.alpha = v);
+        bindSlider("slider-metal", "lbl-metal", material.metallic ?? 0, (v) => material.metallic = v);
+        bindSlider("slider-rough", "lbl-rough", material.roughness ?? 0, (v) => material.roughness = v);
         
-        const reflValue = material.metallic !== null && material.metallic !== undefined ? material.metallic : 0;
-        if (refl) refl.textContent = reflValue.toFixed(2);
+        bindSlider("slider-cc", "lbl-cc", material.clearCoat?.intensity ?? 0, (v) => {
+            if (!material.clearCoat) return;
+            material.clearCoat.isEnabled = v > 0;
+            material.clearCoat.intensity = v;
+        });
 
-        if (sliderMetal && lblMetal) {
-            sliderMetal.value = (material.metallic ?? 0).toString();
-            lblMetal.textContent = sliderMetal.value;
-            sliderMetal.oninput = (e: any) => {
-                const val = parseFloat(e.target.value);
-                material.metallic = val;
-                lblMetal.textContent = val.toFixed(2);
-                if (refl) refl.textContent = val.toFixed(2);
-            };
-        }
+        bindSlider("slider-aniso", "lbl-aniso", material.anisotropy?.intensity ?? 0, (v) => {
+            if (!material.anisotropy) return;
+            material.anisotropy.isEnabled = v > 0;
+            material.anisotropy.intensity = v;
+        });
 
-        if (sliderRough && lblRough) {
-            sliderRough.value = (material.roughness ?? 0).toString();
-            lblRough.textContent = sliderRough.value;
-            sliderRough.oninput = (e: any) => {
-                const val = parseFloat(e.target.value);
-                material.roughness = val;
-                lblRough.textContent = val.toFixed(2);
-            };
-        }
+        bindSlider("slider-refl", "lbl-refl", material.environmentIntensity ?? 1.0, (v) => material.environmentIntensity = v);
+        bindSlider("slider-ambient", "lbl-ambient", material.ambientTexture ? 1.0 : 0.0, (v) => {
+            // For simple demonstration, ambient level scales albedo
+            if(material.ambientColor) {
+                material.ambientColor = new Color3(v, v, v);
+            }
+        });
+
+        bindColor("color-emissive", "lbl-emissive", material.emissiveColor, (c) => {
+            material.emissiveColor = c;
+            material.emissiveIntensity = 1.0;
+        });
+        bindColor("color-tint", "lbl-tint", material.albedoColor, (c) => material.albedoColor = c);
 
         setTimeout(() => {
             if (this._uiContainer) this._uiContainer.classList.add("show");

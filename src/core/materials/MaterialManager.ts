@@ -34,6 +34,8 @@ export class MaterialManager {
         pbr.albedoColor = new Color3(0.9, 0.9, 0.9);
         pbr.metallic = 1.0;
         pbr.roughness = 0.0;
+        pbr.anisotropy.isEnabled = true;
+        pbr.anisotropy.intensity = 0.5;
         return pbr;
     }
 
@@ -104,6 +106,8 @@ export class MaterialManager {
         pbr.albedoColor = Color3.FromHexString("#B87333");
         pbr.metallic = 1.0;
         pbr.roughness = 0.2;
+        pbr.anisotropy.isEnabled = true;
+        pbr.anisotropy.intensity = 0.8;
         return pbr;
     }
 
@@ -136,6 +140,16 @@ export class MaterialManager {
         pbr.clearCoat.isEnabled = true;
         pbr.clearCoat.intensity = 1.0;
         pbr.clearCoat.roughness = 0.1;
+        return pbr;
+    }
+    public createPaint(name: string): PBRMaterial {
+        const pbr = new PBRMaterial(name, SceneManager.instance.scene);
+        pbr.albedoColor = new Color3(0.2, 0.6, 0.8);
+        pbr.metallic = 0.1;
+        pbr.roughness = 0.4;
+        pbr.clearCoat.isEnabled = true;
+        pbr.clearCoat.intensity = 0.8;
+        pbr.clearCoat.roughness = 0.2;
         return pbr;
     }
 }
