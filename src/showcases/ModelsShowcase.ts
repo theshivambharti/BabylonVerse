@@ -187,7 +187,7 @@ export class ModelsShowcase implements IShowcase {
 
     private _startAnimations(): void {
         const scene = SceneManager.instance.scene;
-        const camera = CameraManager.instance.activeCamera;
+        const camera = CameraManager.instance.activeCamera as any;
         if (camera) {
             gsap.to(camera, {
                 radius: 10,

@@ -416,3 +416,62 @@ html, body {
   height: 16px;
 }
 
+
+/* Camera Panel */
+.camera-panel {
+  position: absolute;
+  top: 80px;
+  right: -400px;
+  width: 320px;
+  height: calc(100% - 100px);
+  background: rgba(15, 15, 15, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 24px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+  pointer-events: auto;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.camera-panel::-webkit-scrollbar { width: 6px; }
+.camera-panel::-webkit-scrollbar-track { background: transparent; }
+.camera-panel::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 3px; }
+
+.camera-panel.show {
+  right: 24px;
+}
+
+.camera-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.camera-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.camera-actions .btn {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.camera-actions .btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}

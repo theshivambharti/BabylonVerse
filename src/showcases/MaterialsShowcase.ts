@@ -365,7 +365,7 @@ export class MaterialsShowcase implements IShowcase {
     }
 
     private _selectMesh(mesh: AbstractMesh): void {
-        const camera = CameraManager.instance.activeCamera;
+        const camera = CameraManager.instance.activeCamera as any;
         
         if (this._selectedMesh) {
             this._highlightLayer?.removeMesh(this._selectedMesh as any);
@@ -431,7 +431,7 @@ export class MaterialsShowcase implements IShowcase {
 
         this._hideUI();
 
-        const camera = CameraManager.instance.activeCamera;
+        const camera = CameraManager.instance.activeCamera as any;
         if (camera) {
             gsap.to(camera, {
                 radius: 20,
@@ -452,7 +452,7 @@ export class MaterialsShowcase implements IShowcase {
 
     private _startAnimations(): void {
         const scene = SceneManager.instance.scene;
-        const camera = CameraManager.instance.activeCamera;
+        const camera = CameraManager.instance.activeCamera as any;
         
         if (camera) {
             gsap.fromTo(camera, 
