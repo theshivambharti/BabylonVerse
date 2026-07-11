@@ -1,0 +1,26 @@
+# Node modules
+node_modules/
+dist/
+
+# Vite
+.vite/
+
+# Environment variables
+.env
+.env.*
+
+# Logs and coverage
+coverage/
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Ensure important directories are not ignored
+!src/
+!public/
+!assets/
+!models/
+!src/assets/hdr/
+!src/assets/textures/
