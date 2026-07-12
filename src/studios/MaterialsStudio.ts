@@ -19,10 +19,11 @@ const envStudio = "/assets/hdr/environment.env";
 const envNight = "/assets/hdr/night.env";
 const envOutdoor = "/assets/hdr/outdoor.env";
 
-import { IShowcase } from "../core/interfaces/IShowcase";
+import { IStudioPlugin } from "../core/plugins/IStudioPlugin";
 import { Scene } from "@babylonjs/core/scene";
 
-export class MaterialsShowcase implements IShowcase {
+export class MaterialsStudio implements IStudioPlugin {
+    public name = "Materials";
     private _scene: Scene | null = null;
     private _uiContainer: HTMLElement | null = null;
     private _selectedMesh: AbstractMesh | null = null;
@@ -41,7 +42,12 @@ export class MaterialsShowcase implements IShowcase {
         "Dark Room": envNight
     };
 
-    public async load(): Promise<void> {
+    public async install()
+    {
+        // Loading logic
+    }
+
+    public async activate(): Promise<void> {
         console.log("Starting Materials Showcase load sequence...");
         
         // Instantiate dedicated scene
@@ -85,7 +91,7 @@ export class MaterialsShowcase implements IShowcase {
         console.log("Scene Ready");
     }
 
-    public unload(): void {
+    public deactivate(): void {
         this._removeUI();
         const scene = SceneManager.instance.scene;
         if (this._pointerObserver) {
@@ -727,3 +733,6 @@ export class MaterialsShowcase implements IShowcase {
         }
     }
 }
+
+
+

@@ -1,4 +1,4 @@
-import { IShowcase } from "../core/interfaces/IShowcase";
+import { IStudioPlugin } from "../core/plugins/IStudioPlugin";
 import { SceneManager } from "../core/scene/SceneManager";
 import { CameraManager } from "../core/camera/CameraManager";
 import { LightingManager } from "../core/lighting/LightingManager";
@@ -7,17 +7,23 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
 
-export class PhysicsShowcase implements IShowcase {
+export class EffectsStudio implements IStudioPlugin {
+    public name = "Effects";
     private _scene: Scene | null = null;
     private _uiContainer: HTMLElement | null = null;
 
-    public async load(): Promise<void> {
+    public async install()
+    {
+        // Loading logic
+    }
+
+    public async activate(): Promise<void> {
         // 1. Create dedicated scene
         this._scene = SceneManager.instance.createScene();
         SceneManager.instance.setActiveScene(this._scene);
 
         // 2. Setup Camera and Lighting
-        const camera = CameraManager.instance.createArcRotateCamera("PhysicsCamera");
+        const camera = CameraManager.instance.createArcRotateCamera("EffectsCamera");
         camera.setPosition(new Vector3(0, 5, -10));
         
         LightingManager.instance.createDirectionalLight("dirLight", new Vector3(-1, -2, -1), {
@@ -37,7 +43,7 @@ export class PhysicsShowcase implements IShowcase {
         this._buildUI();
     }
 
-    public unload(): void {
+    public deactivate(): void {
         if (this._uiContainer) {
             this._uiContainer.remove();
             this._uiContainer = null;
@@ -67,11 +73,11 @@ export class PhysicsShowcase implements IShowcase {
         this._uiContainer.style.backdropFilter = "blur(10px)";
 
         const title = document.createElement("h1");
-        title.textContent = "Physics Showcase";
+        title.textContent = "Effects Showcase";
         title.style.margin = "0 0 10px 0";
 
         const desc = document.createElement("p");
-        desc.textContent = "Explore advanced physics features and capabilities.";
+        desc.textContent = "Explore advanced effects features and capabilities.";
         desc.style.margin = "0 0 20px 0";
         desc.style.color = "#ccc";
 
@@ -91,3 +97,6 @@ export class PhysicsShowcase implements IShowcase {
         uiLayer.appendChild(this._uiContainer);
     }
 }
+
+
+

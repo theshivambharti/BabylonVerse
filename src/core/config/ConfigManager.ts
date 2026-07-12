@@ -1,49 +1,22 @@
-export enum ShadowQuality {
-    LOW = 1024,
-    MEDIUM = 2048,
-    HIGH = 4096,
-    ULTRA = 8192
-}
-
-export interface CameraConfig {
-    fov: number;
-    minZ: number;
-    maxZ: number;
-    inertia: number;
-    speed: number;
-}
-
-export interface HDRConfig {
-    skyboxSize: number;
-    environmentIntensity: number;
-    usePMREM: boolean;
-}
+import { EventBus } from "../events/EventBus";
+import { EngineEvents } from "../events/EngineEvents";
 
 export class ConfigManager {
     private static _instance: ConfigManager;
 
-    // Configuration properties with production-ready defaults
+    public environmentMode: "development" | "production" = "development";
+    
+    // Graphics Settings
+    private _graphicsQuality: "low" | "medium" | "high" = "high";
+    private _msaaSamples: number = 4;
+    private _shadowQuality: "low" | "medium" | "high" = "high";
+    private _hdrEnabled: boolean = true;
     private _debugMode: boolean = false;
-    private _environmentMode: string = "production";
-    private _physicsEnabled: boolean = true;
-    private _audioEnabled: boolean = true;
-    private _shadowQuality: ShadowQuality = ShadowQuality.HIGH;
-    
-    private _hdrSettings: HDRConfig = {
-        skyboxSize: 1000,
-        environmentIntensity: 1.0,
-        usePMREM: true
-    };
-    
-    private _cameraDefaults: CameraConfig = {
-        fov: 0.8, // radians
-        minZ: 0.1,
-        maxZ: 1000,
-        inertia: 0.9,
-        speed: 1.0
-    };
+    private _theme: "dark" | "light" = "dark";
 
-    private constructor() {}
+    private constructor() {
+        this._loadSettings();
+    }
 
     public static initialize(): ConfigManager {
         if (!ConfigManager._instance) {
@@ -54,34 +27,63 @@ export class ConfigManager {
 
     public static get instance(): ConfigManager {
         if (!ConfigManager._instance) {
-            throw new Error("ConfigManager has not been initialized. Call initialize() first.");
+            throw new Error("ConfigManager not initialized.");
         }
         return ConfigManager._instance;
     }
 
+    private _loadSettings(): void {
+        const saved = localStorage.getItem("bv_settings");
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (parsed.graphicsQuality) this._graphicsQuality = parsed.graphicsQuality;
+                if (parsed.msaaSamples) this._msaaSamples = parsed.msaaSamples;
+                if (parsed.shadowQuality) this._shadowQuality = parsed.shadowQuality;
+                if (parsed.hdrEnabled !== undefined) this._hdrEnabled = parsed.hdrEnabled;
+                if (parsed.debugMode !== undefined) this._debugMode = parsed.debugMode;
+                if (parsed.theme) this._theme = parsed.theme;
+            } catch (e) {
+                console.error("Failed to parse saved settings", e);
+            }
+        }
+    }
+
+    public saveSettings(): void {
+        const settings = {
+            graphicsQuality: this._graphicsQuality,
+            msaaSamples: this._msaaSamples,
+            shadowQuality: this._shadowQuality,
+            hdrEnabled: this._hdrEnabled,
+            debugMode: this._debugMode,
+            theme: this._theme
+        };
+        localStorage.setItem("bv_settings", JSON.stringify(settings));
+        
+        // Notify systems that rely on config changes
+        EventBus.instance.emit(EngineEvents.ConfigChanged, settings);
+    }
+
     // Getters and Setters
-    public get debugMode(): boolean { return this._debugMode; }
-    public set debugMode(value: boolean) { this._debugMode = value; }
+    get graphicsQuality() { return this._graphicsQuality; }
+    set graphicsQuality(val) { this._graphicsQuality = val; this.saveSettings(); }
 
-    public get environmentMode(): string { return this._environmentMode; }
-    public set environmentMode(value: string) { this._environmentMode = value; }
+    get msaaSamples() { return this._msaaSamples; }
+    set msaaSamples(val) { this._msaaSamples = val; this.saveSettings(); }
 
-    public get physicsEnabled(): boolean { return this._physicsEnabled; }
-    public set physicsEnabled(value: boolean) { this._physicsEnabled = value; }
+    get shadowQuality() { return this._shadowQuality; }
+    set shadowQuality(val) { this._shadowQuality = val; this.saveSettings(); }
 
-    public get audioEnabled(): boolean { return this._audioEnabled; }
-    public set audioEnabled(value: boolean) { this._audioEnabled = value; }
+    get hdrEnabled() { return this._hdrEnabled; }
+    set hdrEnabled(val) { this._hdrEnabled = val; this.saveSettings(); }
 
-    public get shadowQuality(): ShadowQuality { return this._shadowQuality; }
-    public set shadowQuality(value: ShadowQuality) { this._shadowQuality = value; }
-
-    public get hdrSettings(): HDRConfig { return this._hdrSettings; }
-    public set hdrSettings(value: Partial<HDRConfig>) { 
-        this._hdrSettings = { ...this._hdrSettings, ...value }; 
+    get debugMode() { return this._debugMode; }
+    set debugMode(val) { 
+        this._debugMode = val; 
+        this.saveSettings(); 
+        EventBus.instance.emit(EngineEvents.DebugToggled, { enabled: val });
     }
 
-    public get cameraDefaults(): CameraConfig { return this._cameraDefaults; }
-    public set cameraDefaults(value: Partial<CameraConfig>) { 
-        this._cameraDefaults = { ...this._cameraDefaults, ...value }; 
-    }
+    get theme() { return this._theme; }
+    set theme(val) { this._theme = val; this.saveSettings(); }
 }

@@ -1,6 +1,5 @@
 import { SceneManager } from "../scene/SceneManager";
 import { AssetManager } from "../assets/AssetManager";
-import { ConfigManager } from "../config/ConfigManager";
 import { Color3, Color4 } from "@babylonjs/core/Maths/math.color";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
@@ -41,7 +40,7 @@ export class EnvironmentManager {
      */
     public async setupHDR(url: string, createSkybox: boolean = true): Promise<void> {
         const scene = SceneManager.instance.scene;
-        const config = ConfigManager.instance.hdrSettings;
+        const config = { skyboxSize: 1000, environmentIntensity: 1.0, usePMREM: true };
         
         try {
             // Load via AssetManager to guarantee caching
@@ -129,3 +128,5 @@ export class EnvironmentManager {
         Logger.instance.debug(`Atmospheric fog enabled. Mode: ${mode}`);
     }
 }
+
+

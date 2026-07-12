@@ -1,14 +1,19 @@
-import { NavigationManager } from "../core/app/NavigationManager";
-import { IShowcase } from "../core/interfaces/IShowcase";
+import { IStudioPlugin } from "../core/plugins/IStudioPlugin";
 import { SceneManager } from "../core/scene/SceneManager";
 import { Scene } from "@babylonjs/core/scene";
 import { CameraManager } from "../core/camera/CameraManager";
 
-export class HomeShowcase implements IShowcase {
+export class HomeStudio implements IStudioPlugin {
+    public name = "Home";
     private _scene: Scene | null = null;
     private _container: HTMLElement | null = null;
 
-    public async load(): Promise<void> {
+    public async install()
+    {
+        // Loading logic
+    }
+
+    public async activate(): Promise<void> {
         this._scene = SceneManager.instance.createScene();
         SceneManager.instance.setActiveScene(this._scene);
         
@@ -18,7 +23,7 @@ export class HomeShowcase implements IShowcase {
         this._buildHTML();
     }
 
-    public unload(): void {
+    public deactivate(): void {
         if (this._container) {
             this._container.remove();
             this._container = null;
@@ -68,7 +73,7 @@ export class HomeShowcase implements IShowcase {
             card.appendChild(cardTitle);
 
             card.onclick = () => {
-                NavigationManager.instance.navigateTo(mod);
+                // NavigationManager.instance.navigateTo(mod);
             };
 
             grid.appendChild(card);
@@ -78,3 +83,8 @@ export class HomeShowcase implements IShowcase {
         uiLayer.appendChild(this._container);
     }
 }
+
+
+
+
+

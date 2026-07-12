@@ -3,11 +3,36 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BabylonVerse</title>
+    <title>BabylonVerse Editor</title>
   </head>
   <body>
-    <div id="ui-layer"></div>
-    <canvas id="renderCanvas"></canvas>
+    <div id="editor-layout">
+        <header id="top-toolbar">
+            <div class="logo">BabylonVerse</div>
+            <div id="toolbar-actions" class="toolbar-actions"></div>
+        </header>
+        
+        <aside id="left-nav">
+            <nav id="studio-list"></nav>
+        </aside>
+        
+        <main id="viewport-container">
+            <div id="ui-layer"></div>
+            <canvas id="renderCanvas"></canvas>
+        </main>
+        
+        <aside id="right-panel">
+            <div class="panel-header">Properties</div>
+            <div id="properties-content" class="panel-content"></div>
+        </aside>
+        
+        <footer id="status-bar">
+            <div id="status-left">Engine Core v0.5.0</div>
+            <div id="status-right"></div>
+        </footer>
+    </div>
+    
+    <div id="ui-toast" class="toast"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

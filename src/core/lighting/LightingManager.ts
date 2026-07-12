@@ -103,8 +103,8 @@ export class LightingManager {
             return this._shadowGenerators.get(light.name)!;
         }
 
-        const shadowQuality = ConfigManager.instance.shadowQuality;
-        const shadowGenerator = new ShadowGenerator(shadowQuality, light);
+        const shadowMapSize = ConfigManager.instance.shadowQuality === "high" ? 2048 : (ConfigManager.instance.shadowQuality === "medium" ? 1024 : 512);
+        const shadowGenerator = new ShadowGenerator(shadowMapSize, light);
         
         // Professional shadow defaults for smooth, high-quality filtering
         shadowGenerator.useBlurExponentialShadowMap = true;
@@ -171,3 +171,4 @@ export class LightingManager {
         }
     }
 }
+

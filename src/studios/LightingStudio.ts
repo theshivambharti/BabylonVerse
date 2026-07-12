@@ -1,4 +1,4 @@
-import { IShowcase } from "../core/interfaces/IShowcase";
+import { IStudioPlugin } from "../core/plugins/IStudioPlugin";
 import { SceneManager } from "../core/scene/SceneManager";
 import { CameraManager } from "../core/camera/CameraManager";
 import { LightingManager } from "../core/lighting/LightingManager";
@@ -23,7 +23,8 @@ import gsap from "gsap";
 
 const envStudio = "/assets/hdr/studio.env";
 
-export class LightingShowcase implements IShowcase {
+export class LightingStudio implements IStudioPlugin {
+    public name = "Lighting";
     private _scene: Scene | null = null;
     private _uiContainer: HTMLElement | null = null;
     private _meshes: AbstractMesh[] = [];
@@ -42,7 +43,12 @@ export class LightingShowcase implements IShowcase {
     private _uiRefreshObserver: any = null;
     private _pointerObserver: any = null;
 
-    public async load(): Promise<void> {
+    public async install()
+    {
+        // Loading logic
+    }
+
+    public async activate(): Promise<void> {
         this._scene = SceneManager.instance.createScene();
         SceneManager.instance.setActiveScene(this._scene);
 
@@ -66,7 +72,7 @@ export class LightingShowcase implements IShowcase {
         });
     }
 
-    public unload(): void {
+    public deactivate(): void {
         if (this._uiRefreshObserver && this._scene) {
             this._scene.onBeforeRenderObservable.remove(this._uiRefreshObserver);
         }
@@ -355,3 +361,6 @@ export class LightingShowcase implements IShowcase {
         uiLayer.appendChild(this._uiContainer);
     }
 }
+
+
+

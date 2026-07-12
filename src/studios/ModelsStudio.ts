@@ -14,14 +14,20 @@ import { Logger } from "../utilities/Logger";
 const boomBoxUrl = "/assets/models/BoomBox.glb";
 const envUrl = "/assets/hdr/environment.env";
 
-import { IShowcase } from "../core/interfaces/IShowcase";
+import { IStudioPlugin } from "../core/plugins/IStudioPlugin";
 import { Scene } from "@babylonjs/core/scene";
 
-export class ModelsShowcase implements IShowcase {
+export class ModelsStudio implements IStudioPlugin {
+    public name = "Models";
     private _scene: Scene | null = null;
     private _heroModel: AbstractMesh | null = null;
     
-    public async load(): Promise<void> {
+    public async install()
+    {
+        // Loading logic
+    }
+
+    public async activate(): Promise<void> {
         this._scene = SceneManager.instance.createScene();
         SceneManager.instance.setActiveScene(this._scene);
         
@@ -38,7 +44,7 @@ export class ModelsShowcase implements IShowcase {
         this._startAnimations();
     }
     
-    public unload(): void {
+    public deactivate(): void {
         if (this._scene) {
             this._scene.dispose();
             this._scene = null;
@@ -206,3 +212,6 @@ export class ModelsShowcase implements IShowcase {
         });
     }
 }
+
+
+

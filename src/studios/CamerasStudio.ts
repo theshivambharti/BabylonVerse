@@ -1,4 +1,4 @@
-import { IShowcase } from "../core/interfaces/IShowcase";
+import { IStudioPlugin } from "../core/plugins/IStudioPlugin";
 import { SceneManager } from "../core/scene/SceneManager";
 import { CameraManager } from "../core/camera/CameraManager";
 import { LightingManager } from "../core/lighting/LightingManager";
@@ -16,7 +16,8 @@ import { UtilityLayerRenderer } from "@babylonjs/core/Rendering/utilityLayerRend
 import { ArcRotateCamera } from "@babylonjs/core/Cameras/arcRotateCamera";
 import gsap from "gsap";
 
-export class CamerasShowcase implements IShowcase {
+export class CamerasStudio implements IStudioPlugin {
+    public name = "Cameras";
     private _scene: Scene | null = null;
     private _uiContainer: HTMLElement | null = null;
     private _utilLayer: UtilityLayerRenderer | null = null;
@@ -25,7 +26,12 @@ export class CamerasShowcase implements IShowcase {
     private _tourTimeline: gsap.core.Timeline | null = null;
     private _meshes: AbstractMesh[] = [];
 
-    public async load(): Promise<void> {
+    public async install()
+    {
+        // Loading logic
+    }
+
+    public async activate(): Promise<void> {
         this._scene = SceneManager.instance.createScene();
         SceneManager.instance.setActiveScene(this._scene);
 
@@ -51,7 +57,7 @@ export class CamerasShowcase implements IShowcase {
         this._setupInteractions();
     }
 
-    public unload(): void {
+    public deactivate(): void {
         window.removeEventListener("keydown", this._handleKey);
         this._tourActive = false;
         if (this._tourTimeline) {
@@ -355,3 +361,6 @@ export class CamerasShowcase implements IShowcase {
 
 
 }
+
+
+
