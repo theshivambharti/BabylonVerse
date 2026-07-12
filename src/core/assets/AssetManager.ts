@@ -1,4 +1,5 @@
-import { SceneLoader, ISceneLoaderAsyncResult, ISceneLoaderProgressEvent } from "@babylonjs/core/Loading/sceneLoader";
+import { SceneLoader, ISceneLoaderProgressEvent } from "@babylonjs/core/Loading/sceneLoader";
+import { AssetContainer, InstantiatedEntries } from "@babylonjs/core/assetContainer";
 import { Texture } from "@babylonjs/core/Materials/Textures/texture";
 import { CubeTexture } from "@babylonjs/core/Materials/Textures/cubeTexture";
 import { HDRCubeTexture } from "@babylonjs/core/Materials/Textures/hdrCubeTexture";
@@ -13,7 +14,7 @@ export class AssetManager {
     private static _instance: AssetManager;
 
     // Cache promises to prevent duplicate concurrent network requests
-    private _modelCache = new Map<string, Promise<ISceneLoaderAsyncResult>>();
+    private _modelCache = new Map<string, Promise<AssetContainer>>();
     private _textureCache = new Map<string, Promise<Texture>>();
     private _hdrCache = new Map<string, Promise<any>>();
     private _soundCache = new Map<string, Promise<Sound>>();
@@ -35,60 +36,56 @@ export class AssetManager {
     }
 
     /**
-     * Loads a 3D model (GLB, glTF, OBJ, etc.) and caches it.
+     * Loads a 3D model (GLB, glTF, OBJ, etc.) via AssetContainer and instantiates it into the active scene.
      */
     public async loadModel(
         rootUrl: string, 
         fileName: string, 
         onProgress?: (event: ISceneLoaderProgressEvent) => void
-    ): Promise<ISceneLoaderAsyncResult> {
+    ): Promise<InstantiatedEntries> {
         const key = `${rootUrl}${fileName}`;
-        
-        if (this._modelCache.has(key)) {
-            return this._modelCache.get(key)!;
-        }
-        
         const scene = SceneManager.instance.scene;
         
-        const promise = SceneLoader.ImportMeshAsync(
-            "", 
-            rootUrl, 
-            fileName, 
-            scene, 
-            (event) => {
-                if (onProgress) {
-                    onProgress(event);
+        let containerPromise = this._modelCache.get(key);
+        
+        if (!containerPromise) {
+            containerPromise = SceneLoader.LoadAssetContainerAsync(
+                rootUrl, 
+                fileName, 
+                scene, 
+                (event: ISceneLoaderProgressEvent) => {
+                    if (onProgress) {
+                        onProgress(event);
+                    }
                 }
-            }
-        ).catch(error => {
-            Logger.instance.error(`Failed to load model: ${key}`, error);
-            this._modelCache.delete(key);
-            throw error;
-        });
+            ).catch(error => {
+                Logger.instance.error(`Failed to load model: ${key}`, error);
+                this._modelCache.delete(key);
+                throw error;
+            });
+            
+            this._modelCache.set(key, containerPromise);
+        }
         
-        this._modelCache.set(key, promise);
-        
-        return promise;
+        const container = await containerPromise;
+        // Instantiate the model into the CURRENT active scene.
+        // This safely clones the model and adds it to the active scene without destroying the cache.
+        const entries = container.instantiateModelsToScene(name => name, false, { doNotInstantiate: false });
+        return entries;
     }
 
     /**
-     * Completely disposes of a cached model and all its internal sub-assets.
+     * Completely disposes of a cached model AssetContainer.
      */
     public async disposeModel(rootUrl: string, fileName: string): Promise<void> {
         const key = `${rootUrl}${fileName}`;
         if (!this._modelCache.has(key)) return;
         
         try {
-            const result = await this._modelCache.get(key)!;
-            
-            // Dispose all sub-assets properly to free up GPU and CPU memory
-            result.meshes.forEach(mesh => mesh.dispose());
-            result.particleSystems.forEach(ps => ps.dispose());
-            result.skeletons.forEach(skel => skel.dispose());
-            result.animationGroups.forEach(ag => ag.dispose());
-            
+            const container = await this._modelCache.get(key)!;
+            container.dispose();
             this._modelCache.delete(key);
-            Logger.instance.debug(`Disposed model: ${key}`);
+            Logger.instance.debug(`Disposed model container: ${key}`);
         } catch (error) {
             Logger.instance.warn(`Error disposing model ${key}`, error);
         }

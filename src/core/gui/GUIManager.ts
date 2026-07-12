@@ -43,6 +43,16 @@ export class GUIManager {
     }
 
     /**
+     * Clears all cached UI elements when a scene is disposed.
+     */
+    public clearSceneContext(): void {
+        this._fullscreenUIs.forEach((ui) => {
+            ui.dispose();
+        });
+        this._fullscreenUIs.clear();
+    }
+
+    /**
      * Retrieves an existing fullscreen UI by name.
      */
     public getFullscreenUI(name: string): AdvancedDynamicTexture | undefined {

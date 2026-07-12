@@ -163,7 +163,7 @@ export class ModelsShowcase implements IShowcase {
         const am = AssetManager.instance;
         try {
             const result = await am.loadModel("", boomBoxUrl, undefined);
-            const rootMesh = result.meshes[0];
+            const rootMesh = result.rootNodes[0] as AbstractMesh;
             rootMesh.normalizeToUnitCube();
             const targetSize = 2.5;
             rootMesh.scaling.scaleInPlace(targetSize);
@@ -171,7 +171,8 @@ export class ModelsShowcase implements IShowcase {
             const lowestY = bounds.min.y;
             rootMesh.position.y -= lowestY - 0.2; 
             
-            result.meshes.forEach(m => {
+            const meshes = rootMesh.getChildMeshes(false);
+            meshes.forEach((m: any) => {
                 if (shadowGen) shadowGen.addShadowCaster(m);
             });
             this._heroModel = rootMesh;

@@ -75,7 +75,7 @@ export class ShowcaseScene {
             });
             
             // Extract and position the root mesh of the model
-            const rootMesh = modelResult.meshes[0];
+            const rootMesh = modelResult.rootNodes[0] as import("@babylonjs/core/Meshes/abstractMesh").AbstractMesh;
             
             // Normalize scale and position for the showroom
             rootMesh.scaling = new Vector3(80, 80, 80); 
@@ -83,7 +83,8 @@ export class ShowcaseScene {
             
             // Register all descendant meshes into the shadow mapping pipeline
             if (shadowGen) {
-                modelResult.meshes.forEach(m => shadowGen.addShadowCaster(m));
+                const meshes = rootMesh.getChildMeshes(false);
+                meshes.forEach((m: any) => shadowGen.addShadowCaster(m));
             }
             
             Logger.instance.info("High-Quality Asset Integrated Successfully.");

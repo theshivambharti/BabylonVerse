@@ -196,4 +196,11 @@ export class CameraManager {
             gsap.to(tCam.target, { x: this._defaultTarget.x, y: this._defaultTarget.y, z: this._defaultTarget.z, duration: 1.5, ease: "power2.inOut" });
         }
     }
+
+    /**
+     * Clears camera references when a scene is disposed.
+     */
+    public clearSceneContext(): void {
+        this._activeCamera = null;
+    }
 }

@@ -4,9 +4,10 @@ import { DebugManager } from "../debug/DebugManager";
 import { HighlightLayer } from "@babylonjs/core/Layers/highlightLayer";
 import { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
-import { Observable } from "@babylonjs/core/Misc/observable";
-import { PointerEventTypes } from "@babylonjs/core/Events/pointerEvents";
-import { KeyboardEventTypes } from "@babylonjs/core/Events/keyboardEvents";
+import { Observable, Observer } from "@babylonjs/core/Misc/observable";
+import { PointerInfo, PointerEventTypes } from "@babylonjs/core/Events/pointerEvents";
+import { KeyboardInfo, KeyboardEventTypes } from "@babylonjs/core/Events/keyboardEvents";
+import { Scene } from "@babylonjs/core/scene";
 
 export class InteractionManager {
     private static _instance: InteractionManager;
@@ -14,6 +15,9 @@ export class InteractionManager {
     private _highlightLayer: HighlightLayer | null = null;
     private _hoveredMesh: AbstractMesh | null = null;
     private _selectedMesh: AbstractMesh | null = null;
+    
+    private _pointerObserver: Observer<PointerInfo> | null = null;
+    private _keyboardObserver: Observer<KeyboardInfo> | null = null;
 
     public onMeshSelected: Observable<AbstractMesh | null> = new Observable<AbstractMesh | null>();
 
@@ -35,14 +39,42 @@ export class InteractionManager {
     }
 
     private _setup(): void {
-        const scene = SceneManager.instance.scene;
+        SceneManager.instance.onSceneChanged.add((scene) => {
+            this._bindToScene(scene);
+        });
         
+        // Bind to current scene if it exists
+        try {
+            const scene = SceneManager.instance.scene;
+            this._bindToScene(scene);
+        } catch (e) {
+            // Ignored, scene might not be set yet
+        }
+    }
+
+    private _bindToScene(scene: Scene): void {
+        this._hoveredMesh = null;
+        this._selectedMesh = null;
+
+        if (this._highlightLayer) {
+            this._highlightLayer.dispose();
+            this._highlightLayer = null;
+        }
+
         // Initialize Highlight Layer
         this._highlightLayer = new HighlightLayer("highlight", scene);
         this._highlightLayer.innerGlow = false;
         
+        // Remove old observers if any
+        if (this._pointerObserver && scene.onPointerObservable.hasObservers()) {
+            scene.onPointerObservable.remove(this._pointerObserver);
+        }
+        if (this._keyboardObserver && scene.onKeyboardObservable.hasObservers()) {
+            scene.onKeyboardObservable.remove(this._keyboardObserver);
+        }
+
         // Pointer Events (Hover & Click)
-        scene.onPointerObservable.add((pointerInfo) => {
+        this._pointerObserver = scene.onPointerObservable.add((pointerInfo) => {
             switch (pointerInfo.type) {
                 case PointerEventTypes.POINTERMOVE:
                     this._handleHover(pointerInfo.pickInfo?.pickedMesh || null);
@@ -56,7 +88,7 @@ export class InteractionManager {
         });
 
         // Keyboard Shortcuts
-        scene.onKeyboardObservable.add((kbInfo) => {
+        this._keyboardObserver = scene.onKeyboardObservable.add((kbInfo) => {
             if (kbInfo.type === KeyboardEventTypes.KEYDOWN) {
                 switch (kbInfo.event.key.toLowerCase()) {
                     case "f": // Focus

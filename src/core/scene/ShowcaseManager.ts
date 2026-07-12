@@ -9,22 +9,26 @@ import { EnvironmentShowcase } from "../../showcases/EnvironmentShowcase";
 import { EffectsShowcase } from "../../showcases/EffectsShowcase";
 import { PerformanceShowcase } from "../../showcases/PerformanceShowcase";
 
+import { LightingManager } from "../lighting/LightingManager";
+import { GUIManager } from "../gui/GUIManager";
+import { CameraManager } from "../camera/CameraManager";
+
 export class ShowcaseManager {
     private static _instance: ShowcaseManager;
     private _currentShowcase: IShowcase | null = null;
     
-    private _showcases: Map<string, IShowcase> = new Map();
+    private _showcaseFactories: Map<string, () => IShowcase> = new Map();
 
     private constructor() {
-        this._showcases.set("Home", new HomeShowcase());
-        this._showcases.set("Models", new ModelsShowcase());
-        this._showcases.set("Materials", new MaterialsShowcase());
-        this._showcases.set("Lighting", new LightingShowcase());
-        this._showcases.set("Cameras", new CamerasShowcase());
-        this._showcases.set("Physics", new PhysicsShowcase());
-        this._showcases.set("Environment", new EnvironmentShowcase());
-        this._showcases.set("Effects", new EffectsShowcase());
-        this._showcases.set("Performance", new PerformanceShowcase());
+        this._showcaseFactories.set("Home", () => new HomeShowcase());
+        this._showcaseFactories.set("Models", () => new ModelsShowcase());
+        this._showcaseFactories.set("Materials", () => new MaterialsShowcase());
+        this._showcaseFactories.set("Lighting", () => new LightingShowcase());
+        this._showcaseFactories.set("Cameras", () => new CamerasShowcase());
+        this._showcaseFactories.set("Physics", () => new PhysicsShowcase());
+        this._showcaseFactories.set("Environment", () => new EnvironmentShowcase());
+        this._showcaseFactories.set("Effects", () => new EffectsShowcase());
+        this._showcaseFactories.set("Performance", () => new PerformanceShowcase());
     }
 
     public static initialize(): ShowcaseManager {
@@ -49,12 +53,17 @@ export class ShowcaseManager {
         if (this._currentShowcase) {
             this._currentShowcase.unload();
             this._currentShowcase = null;
+            
+            // Clear context from singleton managers to prevent memory leaks
+            LightingManager.instance.clearSceneContext();
+            GUIManager.instance.clearSceneContext();
+            CameraManager.instance.clearSceneContext();
         }
 
-        const showcase = this._showcases.get(name);
+        const factory = this._showcaseFactories.get(name);
         
-        if (showcase) {
-            this._currentShowcase = showcase;
+        if (factory) {
+            this._currentShowcase = factory();
             await this._currentShowcase.load();
         } else {
             console.warn(`Showcase ${name} not found in ShowcaseManager.`);

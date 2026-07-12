@@ -1,10 +1,13 @@
 import { Scene } from "@babylonjs/core/scene";
 import { Color4 } from "@babylonjs/core/Maths/math.color";
 import { EngineManager } from "../engine/EngineManager";
+import { Observable } from "@babylonjs/core/Misc/observable";
 
 export class SceneManager {
     private static _instance: SceneManager;
     private _scene: Scene | null = null;
+    
+    public onSceneChanged: Observable<Scene> = new Observable<Scene>();
 
     private constructor() {}
 
@@ -32,6 +35,7 @@ export class SceneManager {
 
     public setActiveScene(scene: Scene): void {
         this._scene = scene;
+        this.onSceneChanged.notifyObservers(scene);
     }
 
     public get scene(): Scene {

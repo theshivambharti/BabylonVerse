@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.4.1] - 2026-07-12
+### Refactored
+- Core Architecture & Asset Pipeline Refactor.
+- Fixed AssetManager to use AssetContainer for robust, multi-scene asset caching without poisoning.
+- Plugged memory leaks in LightingManager and GUIManager via clearSceneContext().
+- Implemented lazy instantiation for ShowcaseManager to heavily optimize boot load times.
+- Fixed InteractionManager observables pointing to destroyed scenes via onSceneChanged.
+
+## [v0.4.0] - 2026-07-12
+### Added
+- Professional Camera Studio showcasing ArcRotate, Universal, Free, Follow, Fly, and DeviceOrientation cameras.
 ## [v0.3.1] - 2026-07-12
 ### Fixed & Polished
 - Adjusted object spacing in Lighting Showcase for better composition.
@@ -32,3 +43,4 @@ All notable changes to this project will be documented in this file.
 - Standardized GitHub workflow
 - Production-ready AI agent documentation (`AGENTS.md`, `PROJECT_WORKFLOW.md`, `GIT_RULES.md`)
 - Optimized `vite.config.ts` and `package.json` for massive asset bundling without memory leaks
+

@@ -150,6 +150,16 @@ export class LightingManager {
         }
     }
 
+    /**
+     * Clears all cached shadow generators when a scene is disposed.
+     */
+    public clearSceneContext(): void {
+        this._shadowGenerators.forEach((sg) => {
+            sg.dispose();
+        });
+        this._shadowGenerators.clear();
+    }
+
     public toggleShadows(light: IShadowLight, enabled: boolean, meshes?: import("@babylonjs/core/Meshes/abstractMesh").AbstractMesh[]): void {
         if (enabled) {
             const sg = this.addShadowGenerator(light);
